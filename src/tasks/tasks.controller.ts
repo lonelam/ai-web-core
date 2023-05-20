@@ -11,6 +11,7 @@ import {
 import { AuthorizedRequest } from 'src/user/auth/interface';
 import { UserRole } from 'src/user/dto/user.entity';
 import { AddTaskParams } from './dto/addTask.validation';
+import { DequeTaskParams } from './dto/dequeTask.validation';
 import { ResolveTaskParams } from './dto/resolveTask.validation';
 import { Task } from './dto/task.entity';
 import { TasksService } from './tasks.service';
@@ -47,13 +48,16 @@ export class TasksController {
   }
 
   @Post('deque')
-  async dequeTask(@Request() request: AuthorizedRequest) {
+  async dequeTask(
+    @Request() request: AuthorizedRequest,
+    @Body() body: DequeTaskParams,
+  ) {
     if (request.user.role !== UserRole.TASK_SLAVE) {
       throw new UnauthorizedException(
         'task can only be fetched by task slave users',
       );
     }
-    const task = await this.tasksService.dequeOneTask();
+    const task = await this.tasksService.dequeOneTask(body);
     if (!task) {
       throw new NotFoundException(`the queue is empty now`);
     }

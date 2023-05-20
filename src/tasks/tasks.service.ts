@@ -7,6 +7,7 @@ import { TaskTemplate } from './dto/taskTemplate.entity';
 import * as jsonschema from 'jsonschema';
 import { User } from 'src/user/dto/user.entity';
 import { ResolveTaskParams } from './dto/resolveTask.validation';
+import { DequeTaskParams } from './dto/dequeTask.validation';
 
 @Injectable()
 export class TasksService {
@@ -48,14 +49,15 @@ export class TasksService {
     return this.taskRepository.find();
   }
 
-  async dequeOneTask(): Promise<Task | null> {
+  async dequeOneTask(params: DequeTaskParams): Promise<Task | null> {
+    const { templateId, workerName } = params;
     const theTask = await this.dataSource.transaction(
       async (transactionalEntityManager) => {
         const dequeTask = await transactionalEntityManager
           .createQueryBuilder()
           .select('task')
           .from(Task, 'task')
-          .where({ status: TaskStatus.QUEUEING })
+          .where({ status: TaskStatus.QUEUEING, templateId })
           .orderBy('createTime', 'DESC')
           .getOne();
         if (!dequeTask) return null;

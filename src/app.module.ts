@@ -29,7 +29,7 @@ import { TaskTemplateMeta } from './tasks/dto/taskTemplateMeta.entity';
         TaskTemplateMeta,
       ],
       synchronize: process.env.NODE_ENV === 'development',
-      // logging: true,
+      logging: true,
       // synchronize: true,
     }),
     UserModule,
