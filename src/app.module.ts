@@ -10,6 +10,7 @@ import { Task } from './tasks/dto/task.entity';
 import { TaskWorker } from './tasks/dto/taskWorker.entity';
 import { TaskTemplate } from './tasks/dto/taskTemplate.entity';
 import { AdminModule } from './admin/admin.module';
+import { TaskTemplateMeta } from './tasks/dto/taskTemplateMeta.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -19,7 +20,14 @@ import { AdminModule } from './admin/admin.module';
       username: 'root',
       password: 'root',
       database: 'test',
-      entities: [Authority, User, Task, TaskTemplate, TaskWorker],
+      entities: [
+        Authority,
+        User,
+        Task,
+        TaskTemplate,
+        TaskWorker,
+        TaskTemplateMeta,
+      ],
       synchronize: process.env.NODE_ENV === 'development',
       // logging: true,
       // synchronize: true,

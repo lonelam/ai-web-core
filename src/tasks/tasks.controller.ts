@@ -6,18 +6,20 @@ import {
   Param,
   Post,
   Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthorizedRequest } from 'src/user/auth/interface';
 import { UserRole } from 'src/user/dto/user.entity';
 import { AddTaskParams } from './dto/addTask.validation';
+import { ResolveTaskParams } from './dto/resolveTask.validation';
 import { Task } from './dto/task.entity';
 import { TasksService } from './tasks.service';
 
-@Controller('tasks')
+@Controller('task')
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
-  @Post('add_task')
+  @Post('create')
   addTask(@Body() body: AddTaskParams, @Request() request: AuthorizedRequest) {
     return this.tasksService.addTask({ ...body, user: request.user });
   }
@@ -27,7 +29,7 @@ export class TasksController {
     return this.tasksService.getAllTasksByUserId(request.user_id);
   }
 
-  @Get('task/:id')
+  @Get(':id')
   async getTask(
     @Param('id') id: number,
     @Request() request: AuthorizedRequest,
@@ -42,5 +44,32 @@ export class TasksController {
       throw new NotFoundException();
     }
     return task;
+  }
+
+  @Post('deque')
+  async dequeTask(@Request() request: AuthorizedRequest) {
+    if (request.user.role !== UserRole.TASK_SLAVE) {
+      throw new UnauthorizedException(
+        'task can only be fetched by task slave users',
+      );
+    }
+    const task = await this.tasksService.dequeOneTask();
+    if (!task) {
+      throw new NotFoundException(`the queue is empty now`);
+    }
+    return task;
+  }
+
+  @Post('resolve')
+  async resolveTask(
+    @Request() request: AuthorizedRequest,
+    @Body() body: ResolveTaskParams,
+  ) {
+    if (request.user.role !== UserRole.TASK_SLAVE) {
+      throw new UnauthorizedException(
+        'task can only be resolved by task slave users',
+      );
+    }
+    await this.tasksService.resolveTask(body);
   }
 }

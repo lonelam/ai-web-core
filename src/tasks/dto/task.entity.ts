@@ -42,6 +42,11 @@ export class Task {
   })
   resultData: string;
 
+  @Column({
+    type: 'text',
+  })
+  progressData: string;
+
   @CreateDateColumn()
   createTime: Date;
 

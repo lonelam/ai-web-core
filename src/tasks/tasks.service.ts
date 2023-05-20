@@ -6,6 +6,7 @@ import { Task, TaskStatus } from './dto/task.entity';
 import { TaskTemplate } from './dto/taskTemplate.entity';
 import * as jsonschema from 'jsonschema';
 import { User } from 'src/user/dto/user.entity';
+import { ResolveTaskParams } from './dto/resolveTask.validation';
 
 @Injectable()
 export class TasksService {
@@ -66,6 +67,20 @@ export class TasksService {
     return theTask;
   }
 
+  async startTask({ id, progressData }: { id: number; progressData?: string }) {
+    const task = await this.getTaskById(id);
+    if (!task) {
+      throw new BadRequestException(
+        `the request task id is not for exist task`,
+      );
+    }
+    task.status = TaskStatus.RUNNING;
+    if (progressData) {
+      task.progressData = progressData;
+    }
+    await this.taskRepository.save(task);
+  }
+
   async getTasksByStatus({ status }: { status: TaskStatus }): Promise<Task[]> {
     return this.taskRepository.findBy({
       status: status,
@@ -99,5 +114,38 @@ export class TasksService {
     task.name = name;
     const savedTask = await this.taskRepository.save(task);
     return savedTask;
+  }
+
+  async resolveTask(params: ResolveTaskParams) {
+    const { id, resultData } = params;
+    const task = await this.getTaskById(id);
+    if (!task) {
+      throw new BadRequestException(
+        `the request task id is not for exist task`,
+      );
+    }
+    const validateResult = await this.validator.validate(
+      JSON.parse(resultData),
+      JSON.parse(task.template.resultSchema),
+    );
+    if (!validateResult.valid) {
+      throw new BadRequestException(
+        `the data is not satisfied by schema of template[${task.template.id}]{${task.template.name}}`,
+      );
+    }
+    task.status = TaskStatus.SUCCESS;
+    task.resultData = resultData;
+  }
+
+  async rejectTask({ id }: { id: number }) {
+    const task = await this.getTaskById(id);
+    if (!task) {
+      throw new BadRequestException(
+        `the request task id is not for exist task`,
+      );
+    }
+    task.status = TaskStatus.FAILED;
+    await this.taskRepository.save(task);
+    return task;
   }
 }
