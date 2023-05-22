@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,7 +21,23 @@ export class AuthService {
     @InjectRepository(Authority)
     private authorityRepository: Repository<Authority>,
     private jwtService: JwtService,
-  ) {}
+  ) {
+    this.userRepository.count().then(async (count) => {
+      Logger.debug(`currently ${count} users are registerd in the service`);
+      if (!count) {
+        Logger.log(`no users in the system, creating the superuser`);
+        const user = new User();
+        user.email = `z@laizn.com`;
+        user.userName = `laizn`;
+        user.firstName = 'Lai';
+        user.lastName = 'Zenan';
+        user.secretAuthPasswd = await this.getSecretAuthByPassword(
+          process.env.SUPER_USER_PASSWORD || 'laizn',
+        );
+        this.userRepository.save(user);
+      }
+    });
+  }
 
   private async getSecretAuthByPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -31,6 +48,16 @@ export class AuthService {
     secretAuth: string,
   ): Promise<boolean> {
     return await bcrypt.compare(password, secretAuth);
+  }
+
+  async updateUserRole(id: number, role: UserRole) {
+    const user = await this.getOneById({ id });
+    if (!user) {
+      throw new BadRequestException(`the user id [${id}] is invalid`);
+    }
+    user.role = role;
+    this.userRepository.save(user);
+    return user;
   }
 
   async getAllUsers() {

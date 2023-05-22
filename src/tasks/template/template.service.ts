@@ -19,8 +19,12 @@ export class TemplateService {
     return this.templateRepository.findOneBy({ id });
   }
 
+  async getVisibleTemplates() {
+    return await this.templateRepository.findBy({ visible: true });
+  }
+
   async createTemplate(creationData: ICreateTemplate) {
-    const { name, dataSchema, resultSchema } = creationData;
+    const { name, dataSchema, resultSchema, visible, meta } = creationData;
 
     if (!isJSON(dataSchema)) {
       throw new BadRequestException(`the dataSchema should be valid JSON`);
@@ -33,11 +37,13 @@ export class TemplateService {
     template.name = name;
     template.dataSchema = dataSchema;
     template.resultSchema = resultSchema;
+    template.visible = visible;
+    template.meta = meta;
     const savedTemplate = await this.templateRepository.save(template);
     return savedTemplate;
   }
   async updateTemplate(updateData: IUpdateTemplate) {
-    const { id, name, dataSchema, resultSchema } = updateData;
+    const { id, name, dataSchema, resultSchema, visible, meta } = updateData;
     const template = await this.getTemplateById(id);
     if (!template) {
       throw new BadRequestException(
@@ -47,6 +53,15 @@ export class TemplateService {
     if (name !== undefined) {
       template.name = name;
     }
+
+    if (visible !== undefined) {
+      template.visible = visible;
+    }
+
+    if (meta !== undefined) {
+      template.meta = meta;
+    }
+
     if (dataSchema !== undefined) {
       if (!isJSON(dataSchema)) {
         throw new BadRequestException(`the dataSchema should be valid JSON`);

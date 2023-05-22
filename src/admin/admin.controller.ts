@@ -18,7 +18,7 @@ import { TasksService } from 'src/tasks/tasks.service';
 import { TemplateService } from 'src/tasks/template/template.service';
 import { AuthService } from 'src/user/auth/auth.service';
 import { Admin } from 'src/user/auth/constants';
-import { User } from 'src/user/dto/user.entity';
+import { User, UserRole } from 'src/user/dto/user.entity';
 
 @Admin()
 @Controller('admin')
@@ -31,6 +31,12 @@ export class AdminController {
   @Get('users')
   async getAllUsers(): Promise<{ users: User[] }> {
     return this.authService.getAllUsers();
+  }
+  @Post('user/role')
+  async changeUserRole(
+    @Body() body: { userId: number; role: UserRole },
+  ): Promise<User> {
+    return this.authService.updateUserRole(body.userId, body.role);
   }
   @Get('tasks')
   async getAllTasks() {
@@ -66,6 +72,7 @@ export class AdminController {
   async updateTemplate(@Body() body: IUpdateTemplate) {
     return this.templateService.updateTemplate(body);
   }
+
   @Delete('template/:id')
   async deleteTemplate(@Param('id') id: number) {
     return this.templateService.deleteTemplate(id);

@@ -15,10 +15,14 @@ import { DequeTaskParams } from './dto/dequeTask.validation';
 import { ResolveTaskParams } from './dto/resolveTask.validation';
 import { Task } from './dto/task.entity';
 import { TasksService } from './tasks.service';
+import { TemplateService } from './template/template.service';
 
 @Controller('task')
 export class TasksController {
-  constructor(private tasksService: TasksService) {}
+  constructor(
+    private tasksService: TasksService,
+    private templateService: TemplateService,
+  ) {}
 
   @Post('create')
   addTask(@Body() body: AddTaskParams, @Request() request: AuthorizedRequest) {
@@ -28,6 +32,11 @@ export class TasksController {
   @Get('get_tasks')
   getAllTasks(@Request() request: AuthorizedRequest) {
     return this.tasksService.getAllTasksByUserId(request.user_id);
+  }
+
+  @Get('templates')
+  getAllTemplates() {
+    return this.templateService.getVisibleTemplates();
   }
 
   @Get(':id')

@@ -26,6 +26,12 @@ export class UserRegisterParams implements IRegisterUser {
   email: string;
 
   @ApiProperty()
+  phone?: string;
+
+  @ApiProperty()
   @IsStrongPassword()
   password: string;
+
+  @ApiProperty()
+  validateCode?: string;
 }

@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -36,6 +37,10 @@ export class TaskTemplate {
   })
   resultSchema: string;
 
+  @ApiProperty()
+  @Column()
+  visible: boolean;
+
   @OneToMany(() => Task, (task) => task.template)
   tasks: Task[];
 
@@ -45,6 +50,10 @@ export class TaskTemplate {
   @DeleteDateColumn()
   deleteTime: Date;
 
-  @OneToOne(() => TaskTemplateMeta, (meta) => meta.template, { cascade: true })
+  @OneToOne(() => TaskTemplateMeta, (meta) => meta.template, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn()
   meta: TaskTemplateMeta;
 }

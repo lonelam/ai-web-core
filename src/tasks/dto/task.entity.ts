@@ -17,6 +17,7 @@ export enum TaskStatus {
   FAILED = 'failed',
   SUCCESS = 'success',
 }
+
 @Entity()
 export class Task {
   @PrimaryGeneratedColumn({ primaryKeyConstraintName: 'pk_id' })
@@ -30,7 +31,7 @@ export class Task {
     enum: TaskStatus,
     default: TaskStatus.INIT,
   })
-  status: string;
+  status: TaskStatus;
 
   @Column({
     type: 'text',
@@ -39,11 +40,13 @@ export class Task {
 
   @Column({
     type: 'text',
+    nullable: true,
   })
   resultData: string;
 
   @Column({
     type: 'text',
+    nullable: true,
   })
   progressData: string;
 
@@ -62,3 +65,4 @@ export class Task {
   @ManyToOne(() => TaskWorker)
   worker: TaskWorker;
 }
+export type IPublicTask = Omit<Task, 'worker' | 'template' | 'creator'>;

@@ -57,7 +57,7 @@ export class User {
   })
   role: UserRole;
 
-  @OneToMany(() => Authority, (authority) => authority.owner)
+  @OneToMany(() => Authority, (authority) => authority.owner, { eager: true })
   authorities: Authority[];
 
   get authorityKeys(): string[] {
