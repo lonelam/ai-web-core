@@ -67,7 +67,7 @@ export class AuthService {
       .where('user.isActive = true')
       .limit(1000)
       .getMany();
-    return { users };
+    return users;
   }
 
   async register({

@@ -29,7 +29,7 @@ export class AdminController {
     private templateService: TemplateService,
   ) {}
   @Get('users')
-  async getAllUsers(): Promise<{ users: User[] }> {
+  async getAllUsers(): Promise<User[]> {
     return this.authService.getAllUsers();
   }
   @Post('user/role')

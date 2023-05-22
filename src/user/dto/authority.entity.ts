@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -19,5 +20,6 @@ export class Authority {
   createTime: Date;
 
   @ManyToOne(() => User, (user) => user.authorities)
+  @JoinColumn()
   owner: User;
 }

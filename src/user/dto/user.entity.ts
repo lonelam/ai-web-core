@@ -5,6 +5,7 @@ import {
   OneToMany,
   CreateDateColumn,
   Index,
+  JoinTable,
 } from 'typeorm';
 import { Authority } from './authority.entity';
 import { IPublicUser } from './user.interface';
@@ -57,10 +58,16 @@ export class User {
   })
   role: UserRole;
 
-  @OneToMany(() => Authority, (authority) => authority.owner, { eager: true })
+  @OneToMany(() => Authority, (authority) => authority.owner, {
+    eager: true,
+    cascade: true,
+  })
   authorities: Authority[];
 
   get authorityKeys(): string[] {
+    if (!this.authorities) {
+      return [];
+    }
     return this.authorities.map((a) => a.featureKey);
   }
 
