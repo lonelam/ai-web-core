@@ -7,11 +7,11 @@ import { TaskTemplateMeta } from './tasks/dto/taskTemplateMeta.entity';
 import { DataSourceOptions } from 'typeorm';
 export const dataSourceConfig: DataSourceOptions = {
   type: 'mysql',
-  host: 'localhost',
-  port: 3306,
-  username: 'root',
-  password: 'root',
-  database: 'aiweb',
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT) || 3306,
+  username: process.env.DB_USERNAME || 'root',
+  password: process.env.DB_PASSWORD || 'root',
+  database: process.env.DB_DATABASE || 'aiweb',
   entities: [Authority, User, Task, TaskTemplate, TaskWorker, TaskTemplateMeta],
   migrations: ['dist/db/migrations/*'],
   migrationsRun: true,

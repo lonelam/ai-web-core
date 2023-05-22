@@ -32,7 +32,7 @@ export class AuthService {
         user.firstName = 'Lai';
         user.lastName = 'Zenan';
         user.secretAuthPasswd = await this.getSecretAuthByPassword(
-          process.env.SUPER_USER_PASSWORD || 'laizn',
+          process.env.SUPER_USER_INIT_PASSWORD || 'laizn',
         );
         this.userRepository.save(user);
       }
