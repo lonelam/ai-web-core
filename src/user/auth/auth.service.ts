@@ -31,6 +31,7 @@ export class AuthService {
         user.userName = `laizn`;
         user.firstName = 'Lai';
         user.lastName = 'Zenan';
+        user.role = UserRole.ADMIN;
         user.secretAuthPasswd = await this.getSecretAuthByPassword(
           process.env.SUPER_USER_INIT_PASSWORD || 'laizn',
         );
