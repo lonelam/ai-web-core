@@ -57,10 +57,13 @@ export class TasksService {
           .createQueryBuilder()
           .select('task')
           .from(Task, 'task')
-          .where({ status: TaskStatus.QUEUEING, templateId })
-          .orderBy('createTime', 'DESC')
+          .where('templateId = :templateId', { templateId })
+          .andWhere('status != :success', { success: TaskStatus.SUCCESS })
+          .andWhere('status != :running', { running: TaskStatus.RUNNING })
+          .orderBy('createTime', 'ASC')
           .getOne();
         if (!dequeTask) return null;
+
         dequeTask.status = TaskStatus.PENDING;
         transactionalEntityManager.save(dequeTask);
         return dequeTask;
@@ -114,6 +117,7 @@ export class TasksService {
     task.creator = user;
     task.data = data;
     task.name = name;
+    task.template = template;
     const savedTask = await this.taskRepository.save(task);
     return savedTask;
   }

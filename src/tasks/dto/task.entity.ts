@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -57,12 +58,15 @@ export class Task {
   updateTime: Date;
 
   @ManyToOne(() => TaskTemplate, (template) => template.tasks)
+  @JoinColumn()
   template: TaskTemplate;
 
   @ManyToOne(() => User)
+  @JoinColumn()
   creator: User;
 
   @ManyToOne(() => TaskWorker)
+  @JoinColumn()
   worker: TaskWorker;
 }
 export type IPublicTask = Omit<Task, 'worker' | 'template' | 'creator'>;
