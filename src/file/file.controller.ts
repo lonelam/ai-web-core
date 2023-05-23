@@ -1,5 +1,7 @@
 import {
   Controller,
+  HttpCode,
+  HttpStatus,
   Post,
   Request,
   UploadedFile,
@@ -12,6 +14,8 @@ import { FileService } from './file.service';
 @Controller('file')
 export class FileController {
   constructor(private fileService: FileService) {}
+
+  @HttpCode(HttpStatus.OK)
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(

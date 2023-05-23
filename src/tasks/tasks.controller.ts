@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Post,
@@ -24,21 +26,25 @@ export class TasksController {
     private templateService: TemplateService,
   ) {}
 
+  @HttpCode(HttpStatus.OK)
   @Post('create')
   addTask(@Body() body: AddTaskParams, @Request() request: AuthorizedRequest) {
     return this.tasksService.addTask({ ...body, user: request.user });
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get('get_tasks')
   getAllTasks(@Request() request: AuthorizedRequest) {
     return this.tasksService.getAllTasksByUserId(request.user_id);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get('templates')
   getAllTemplates() {
     return this.templateService.getVisibleTemplates();
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   async getTask(
     @Param('id') id: number,
@@ -56,6 +62,7 @@ export class TasksController {
     return task;
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('deque')
   async dequeTask(
     @Request() request: AuthorizedRequest,
@@ -73,6 +80,7 @@ export class TasksController {
     return task;
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('resolve')
   async resolveTask(
     @Request() request: AuthorizedRequest,

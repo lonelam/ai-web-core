@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Post,
@@ -28,24 +30,34 @@ export class AdminController {
     private tasksService: TasksService,
     private templateService: TemplateService,
   ) {}
+
+  @HttpCode(HttpStatus.OK)
   @Get('users')
   async getAllUsers(): Promise<User[]> {
     return this.authService.getAllUsers();
   }
+
+  @HttpCode(HttpStatus.OK)
   @Post('user/role')
   async changeUserRole(
     @Body() body: { userId: number; role: UserRole },
   ): Promise<User> {
     return this.authService.updateUserRole(body.userId, body.role);
   }
+
+  @HttpCode(HttpStatus.OK)
   @Get('tasks')
   async getAllTasks() {
     return this.tasksService.getAllTasks();
   }
+
+  @HttpCode(HttpStatus.OK)
   @Get('templates')
   async getAllTemplates() {
     return this.templateService.getAllTemplates();
   }
+
+  @HttpCode(HttpStatus.OK)
   @Get('template/:id')
   async getTemplateById(@Param('id') id: number) {
     const template = await this.templateService.getTemplateById(id);
@@ -54,12 +66,15 @@ export class AdminController {
     }
     return template;
   }
+
+  @HttpCode(HttpStatus.OK)
   @Put('template')
   async putTemplate(@Body() body: IUpdateTemplate) {
     return this.templateService.updateTemplate(body);
   }
 
   @ApiBody({ type: TaskTemplate })
+  @HttpCode(HttpStatus.OK)
   @Post('template/create')
   async createTemplate(@Body() body: ICreateTemplate) {
     return this.templateService.createTemplate(body);
@@ -68,11 +83,13 @@ export class AdminController {
   @ApiBody({
     type: TaskTemplate,
   })
+  @HttpCode(HttpStatus.OK)
   @Post('template/update')
   async updateTemplate(@Body() body: IUpdateTemplate) {
     return this.templateService.updateTemplate(body);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Delete('template/:id')
   async deleteTemplate(@Param('id') id: number) {
     return this.templateService.deleteTemplate(id);
