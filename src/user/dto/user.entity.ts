@@ -5,7 +5,6 @@ import {
   OneToMany,
   CreateDateColumn,
   Index,
-  JoinTable,
 } from 'typeorm';
 import { Authority } from './authority.entity';
 import { IPublicUser } from './user.interface';

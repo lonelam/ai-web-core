@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   OneToMany,
   OneToOne,
@@ -19,6 +20,7 @@ export class TaskTemplate {
   id: number;
 
   @ApiProperty()
+  @Index('IDX_NAME', { unique: true })
   @Column()
   name: string;
 

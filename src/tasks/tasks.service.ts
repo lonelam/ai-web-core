@@ -24,6 +24,9 @@ export class TasksService {
       creator: {
         id: userId,
       },
+      template: {
+        visible: true,
+      },
     });
   }
 
@@ -36,6 +39,9 @@ export class TasksService {
         id: userId,
       },
       id: taskId,
+      template: {
+        visible: true,
+      },
     });
   }
 
@@ -50,18 +56,38 @@ export class TasksService {
   }
 
   async dequeOneTask(params: DequeTaskParams): Promise<Task | null> {
-    const { templateId, workerName } = params;
+    const { templateId, templateName, workerName } = params;
     const theTask = await this.dataSource.transaction(
       async (transactionalEntityManager) => {
-        const dequeTask = await transactionalEntityManager
-          .createQueryBuilder()
-          .select('task')
-          .from(Task, 'task')
-          .where('templateId = :templateId', { templateId })
-          .andWhere('status != :success', { success: TaskStatus.SUCCESS })
-          .andWhere('status != :running', { running: TaskStatus.RUNNING })
-          .orderBy('createTime', 'ASC')
-          .getOne();
+        let dequeTask: Task | null = null;
+        if (templateId) {
+          dequeTask = await transactionalEntityManager
+            .createQueryBuilder()
+            .select('task')
+            .from(Task, 'task')
+            .where('templateId = :templateId', { templateId })
+            .andWhere('status != :success', { success: TaskStatus.SUCCESS })
+            .andWhere('status != :running', { running: TaskStatus.RUNNING })
+            .andWhere('status != :pending', { pending: TaskStatus.PENDING })
+            .orderBy('createTime', 'ASC')
+            .getOne();
+        } else if (templateName) {
+          dequeTask = await transactionalEntityManager
+            .createQueryBuilder()
+            .select('task')
+            .from(Task, 'task')
+            .andWhere('status != :success', { success: TaskStatus.SUCCESS })
+            .andWhere('status != :running', { running: TaskStatus.RUNNING })
+            .andWhere('status != :pending', { pending: TaskStatus.PENDING })
+            .innerJoinAndSelect(
+              'task.template',
+              'template',
+              'template.name = :name',
+              { name: templateName },
+            )
+            .orderBy('createTime', 'ASC')
+            .getOne();
+        }
         if (!dequeTask) return null;
 
         dequeTask.status = TaskStatus.PENDING;
