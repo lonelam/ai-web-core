@@ -19,7 +19,10 @@ export class Authority {
   @CreateDateColumn()
   createTime: Date;
 
-  @ManyToOne(() => User, (user) => user.authorities)
-  @JoinColumn()
+  @ManyToOne(() => User, (user) => user.authorities, { nullable: false })
+  @JoinColumn({ foreignKeyConstraintName: 'FK_owner', name: 'ownerId' })
   owner: User;
+
+  @Column()
+  ownerId: number;
 }

@@ -49,13 +49,18 @@ export class TaskTemplate {
   @UpdateDateColumn()
   updateTime: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({
+    default: () => 'NULL',
+    nullable: true,
+  })
   deleteTime: Date;
 
+  @ApiProperty()
   @OneToOne(() => TaskTemplateMeta, (meta) => meta.template, {
     cascade: true,
     eager: true,
+    nullable: false,
   })
-  @JoinColumn()
+  @JoinColumn({ foreignKeyConstraintName: 'FK_meta' })
   meta: TaskTemplateMeta;
 }

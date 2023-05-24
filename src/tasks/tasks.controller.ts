@@ -91,6 +91,6 @@ export class TasksController {
         'task can only be resolved by task slave users',
       );
     }
-    await this.tasksService.resolveTask(body);
+    return await this.tasksService.resolveTask(body);
   }
 }

@@ -15,9 +15,11 @@ export const dataSourceConfig: DataSourceOptions = {
   entities: [Authority, User, Task, TaskTemplate, TaskWorker, TaskTemplateMeta],
   migrations: ['dist/db/migrations/*'],
   migrationsRun: true,
-  migrationsTableName: 'custom_migration_table',
   synchronize: process.env.NODE_ENV === 'development',
-  logging: true,
+  logging:
+    process.env.NODE_ENV === 'development'
+      ? true
+      : ['schema', 'error', 'warn', 'info', 'log', 'migration'],
   // synchronize: true,
 };
 export default dataSourceConfig;

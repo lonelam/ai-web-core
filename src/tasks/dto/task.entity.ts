@@ -42,12 +42,14 @@ export class Task {
   @Column({
     type: 'text',
     nullable: true,
+    default: () => 'NULL',
   })
   resultData: string;
 
   @Column({
     type: 'text',
     nullable: true,
+    default: () => 'NULL',
   })
   progressData: string;
 
@@ -57,16 +59,32 @@ export class Task {
   @UpdateDateColumn()
   updateTime: Date;
 
-  @ManyToOne(() => TaskTemplate, (template) => template.tasks)
-  @JoinColumn()
+  @ManyToOne(() => TaskTemplate, (template) => template.tasks, {
+    nullable: false,
+  })
+  @JoinColumn({
+    foreignKeyConstraintName: 'FK_template',
+    name: 'templateId',
+  })
   template: TaskTemplate;
 
-  @ManyToOne(() => User)
-  @JoinColumn()
+  @Column()
+  templateId: number;
+
+  @ManyToOne(() => User, {
+    nullable: false,
+  })
+  @JoinColumn({ foreignKeyConstraintName: 'FK_creator' })
   creator: User;
 
   @ManyToOne(() => TaskWorker)
-  @JoinColumn()
+  @JoinColumn({
+    foreignKeyConstraintName: 'FK_worker',
+    name: 'workerId',
+  })
   worker: TaskWorker;
+
+  @Column({ nullable: true, default: () => 'NULL' })
+  workerId: number;
 }
 export type IPublicTask = Omit<Task, 'worker' | 'template' | 'creator'>;

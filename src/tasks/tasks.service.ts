@@ -150,16 +150,40 @@ export class TasksService {
 
   async resolveTask(params: ResolveTaskParams) {
     const { id, resultData } = params;
-    const task = await this.getTaskById(id);
+    const task = await this.taskRepository.findOne({
+      relations: {
+        template: true,
+      },
+      where: {
+        id,
+      },
+    });
+
     if (!task) {
       throw new BadRequestException(
         `the request task id is not for exist task`,
       );
     }
+    let parsedResultData;
+    try {
+      parsedResultData = JSON.parse(resultData);
+    } catch (err) {
+      throw new BadRequestException(`the request resultData is not valid JSON`);
+    }
+    let parsedResultSchema;
+    try {
+      parsedResultSchema = JSON.parse(task.template.resultSchema);
+    } catch (err) {
+      throw new BadRequestException(
+        `the request task's resultSchema is not valid JSON`,
+      );
+    }
+
     const validateResult = await this.validator.validate(
-      JSON.parse(resultData),
-      JSON.parse(task.template.resultSchema),
+      parsedResultData,
+      parsedResultSchema,
     );
+
     if (!validateResult.valid) {
       throw new BadRequestException(
         `the data is not satisfied by schema of template[${task.template.id}]{${task.template.name}}`,
@@ -167,6 +191,8 @@ export class TasksService {
     }
     task.status = TaskStatus.SUCCESS;
     task.resultData = resultData;
+    const resultTask = await this.taskRepository.save(task);
+    return resultTask;
   }
 
   async rejectTask({ id }: { id: number }) {
