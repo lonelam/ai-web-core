@@ -139,7 +139,7 @@ export class TasksService {
               'template.name = :name',
               { name: templateName },
             )
-            .orderBy('createTime', 'ASC')
+            .orderBy('task.createTime', 'ASC')
             .getOne();
         }
         if (!dequeTask) return null;
