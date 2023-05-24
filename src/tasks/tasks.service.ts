@@ -180,12 +180,28 @@ export class TasksService {
       id,
     });
   }
+  async getTemplateByName({
+    name,
+  }: {
+    name: string;
+  }): Promise<TaskTemplate | null> {
+    return this.taskTemplateRepository.findOneBy({
+      name,
+    });
+  }
 
   async addTask(params: AddTaskParams & { user: User }): Promise<Task> {
-    const { name, data, templateId, user } = params;
-    const template = await this.getTemplateById({ id: templateId });
+    const { name, data, templateId, templateName, user } = params;
+    let template: TaskTemplate | null = null;
+    if (templateId) {
+      template = await this.getTemplateById({ id: templateId });
+    } else if (templateName) {
+      template = await this.getTemplateByName({ name: templateName });
+    }
     if (!template) {
-      throw new BadRequestException(`the template[${templateId}] not exists!`);
+      throw new BadRequestException(
+        `the template[#${templateId}](${templateName}) not exists!`,
+      );
     }
     const validateResult = await this.validator.validate(
       JSON.parse(data),
