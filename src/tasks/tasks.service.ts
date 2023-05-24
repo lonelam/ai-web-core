@@ -39,24 +39,22 @@ export class TasksService {
     const item = { taskSubject, retrieveSubject };
     this._waitingRequestQueue.push(item);
     const task = await firstValueFrom(
-      taskSubject.pipe(
-        switchMap((task) => {
-          return merge(
-            [task],
-            timer(timeInMilliseconds).pipe(
-              takeUntil(retrieveSubject),
-              switchMap(() => {
-                const itemIndex = this._waitingRequestQueue.indexOf(item);
-                if (itemIndex !== -1) {
-                  this._waitingRequestQueue.splice(itemIndex, 1);
-                }
-                return [null];
-              }),
-            ),
-          );
-        }),
+      merge(
+        taskSubject,
+        timer(timeInMilliseconds).pipe(
+          takeUntil(retrieveSubject),
+          switchMap(() => {
+            const itemIndex = this._waitingRequestQueue.indexOf(item);
+            if (itemIndex !== -1) {
+              this._waitingRequestQueue.splice(itemIndex, 1);
+            }
+            taskSubject.unsubscribe();
+            return [null];
+          }),
+        ),
       ),
     );
+    taskSubject.unsubscribe();
     return task;
   }
 
