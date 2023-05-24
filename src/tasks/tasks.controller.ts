@@ -35,7 +35,7 @@ export class TasksController {
   @HttpCode(HttpStatus.OK)
   @Get('get_tasks')
   getAllTasks(@Request() request: AuthorizedRequest) {
-    return this.tasksService.getAllTasksByUserId(request.user_id);
+    return this.tasksService.getAllTasksByNormalUser(request.user_id);
   }
 
   @HttpCode(HttpStatus.OK)
