@@ -59,27 +59,29 @@ export class TasksService {
   }
 
   async getAllTasksByNormalUser(userId: number): Promise<Task[]> {
-    let visibleTasks: Task[] = [];
-    this.dataSource.transaction(async (transactionalEntityManager) => {
-      visibleTasks = await transactionalEntityManager.findBy(Task, {
-        creator: {
-          id: userId,
-        },
-        template: {
-          visible: true,
-        },
-      });
-      for (const task of visibleTasks) {
-        if (
-          [TaskStatus.PENDING, TaskStatus.RUNNING].includes(task.status) &&
-          Date.now() - task.updateTime.valueOf() > 60 * 1000
-        ) {
-          task.status = TaskStatus.QUEUEING;
+    const allNormalUserTasks = await this.dataSource.transaction(
+      async (transactionalEntityManager) => {
+        const visibleTasks = await transactionalEntityManager.findBy(Task, {
+          creator: {
+            id: userId,
+          },
+          template: {
+            visible: true,
+          },
+        });
+        for (const task of visibleTasks) {
+          if (
+            [TaskStatus.PENDING, TaskStatus.RUNNING].includes(task.status) &&
+            Date.now() - task.updateTime.valueOf() > 60 * 1000
+          ) {
+            task.status = TaskStatus.QUEUEING;
+          }
+          await transactionalEntityManager.save(task);
         }
-        await transactionalEntityManager.save(task);
-      }
-    });
-    return visibleTasks;
+        return visibleTasks;
+      },
+    );
+    return allNormalUserTasks;
   }
 
   async getTaskByNormalUser(
