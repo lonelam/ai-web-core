@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, ValidateIf } from 'class-validator';
 
 export class DequeTaskParams {
@@ -15,4 +15,8 @@ export class DequeTaskParams {
   @ApiProperty()
   @IsNotEmpty()
   workerName: string;
+
+  @ApiPropertyOptional()
+  @IsInt()
+  waitTimeout: number;
 }

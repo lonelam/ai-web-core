@@ -8,16 +8,57 @@ import * as jsonschema from 'jsonschema';
 import { User } from 'src/user/dto/user.entity';
 import { ResolveTaskParams } from './dto/resolveTask.validation';
 import { DequeTaskParams } from './dto/dequeTask.validation';
-
+import {
+  firstValueFrom,
+  merge,
+  Subject,
+  switchMap,
+  takeUntil,
+  timer,
+} from 'rxjs';
+type ITaskRequestItem = {
+  taskSubject: Subject<Task>;
+  retrieveSubject: Subject<void>;
+};
 @Injectable()
 export class TasksService {
   private validator: jsonschema.Validator = new jsonschema.Validator();
+  private _waitingRequestQueue: ITaskRequestItem[] = [];
   constructor(
     @InjectRepository(Task) private taskRepository: Repository<Task>,
     @InjectRepository(TaskTemplate)
     private taskTemplateRepository: Repository<TaskTemplate>,
     @InjectDataSource() private dataSource: DataSource,
   ) {}
+
+  private async _waitForOneTaskForTime(
+    timeInMilliseconds: number,
+  ): Promise<Task | null> {
+    const taskSubject = new Subject<Task>();
+    const retrieveSubject = new Subject<void>();
+    const item = { taskSubject, retrieveSubject };
+    this._waitingRequestQueue.push(item);
+    const task = await firstValueFrom(
+      taskSubject.pipe(
+        switchMap((task) => {
+          return merge(
+            [task],
+            timer(timeInMilliseconds).pipe(
+              takeUntil(retrieveSubject),
+              switchMap(() => {
+                const itemIndex = this._waitingRequestQueue.indexOf(item);
+                if (itemIndex !== -1) {
+                  this._waitingRequestQueue.splice(itemIndex, 1);
+                }
+                return [null];
+              }),
+            ),
+          );
+        }),
+      ),
+    );
+    return task;
+  }
 
   async getAllTasksByNormalUser(userId: number): Promise<Task[]> {
     let visibleTasks: Task[] = [];
@@ -69,7 +110,7 @@ export class TasksService {
   }
 
   async dequeOneTask(params: DequeTaskParams): Promise<Task | null> {
-    const { templateId, templateName, workerName } = params;
+    const { templateId, templateName, workerName, waitTimeout } = params;
     const theTask = await this.dataSource.transaction(
       async (transactionalEntityManager) => {
         let dequeTask: Task | null = null;
@@ -108,6 +149,9 @@ export class TasksService {
         return dequeTask;
       },
     );
+    if (!theTask) {
+      return this._waitForOneTaskForTime(waitTimeout || 1000);
+    }
     return theTask;
   }
 
@@ -157,7 +201,13 @@ export class TasksService {
     task.data = data;
     task.name = name;
     task.template = template;
+    const waitingRequest = this._waitingRequestQueue.shift();
+    if (waitingRequest) {
+      waitingRequest?.retrieveSubject.next();
+      task.status = TaskStatus.PENDING;
+    }
     const savedTask = await this.taskRepository.save(task);
+    waitingRequest?.taskSubject.next(savedTask);
     return savedTask;
   }
 
