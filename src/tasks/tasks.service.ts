@@ -91,7 +91,7 @@ export class TasksService {
         if (!dequeTask) return null;
 
         dequeTask.status = TaskStatus.PENDING;
-        transactionalEntityManager.save(dequeTask);
+        dequeTask = await transactionalEntityManager.save(dequeTask);
         return dequeTask;
       },
     );
