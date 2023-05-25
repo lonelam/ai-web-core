@@ -50,7 +50,6 @@ export class TaskTemplate {
   updateTime: Date;
 
   @DeleteDateColumn({
-    default: () => 'NULL',
     nullable: true,
   })
   deleteTime: Date;

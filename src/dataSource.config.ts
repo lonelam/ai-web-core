@@ -6,7 +6,7 @@ import { TaskTemplate } from './tasks/dto/taskTemplate.entity';
 import { TaskTemplateMeta } from './tasks/dto/taskTemplateMeta.entity';
 import { DataSourceOptions } from 'typeorm';
 export const dataSourceConfig: DataSourceOptions = {
-  type: 'mysql',
+  type: 'mariadb',
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT) || 3306,
   username: process.env.DB_USERNAME || 'root',

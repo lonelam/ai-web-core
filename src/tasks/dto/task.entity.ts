@@ -48,7 +48,6 @@ export class Task {
   @Column({
     type: 'text',
     nullable: true,
-    default: () => 'NULL',
   })
   resultData: string;
 
@@ -56,7 +55,6 @@ export class Task {
   @Column({
     type: 'text',
     nullable: true,
-    default: () => 'NULL',
   })
   progressData: string;
 
@@ -92,7 +90,7 @@ export class Task {
   })
   worker: TaskWorker;
 
-  @Column({ nullable: true, default: () => 'NULL' })
+  @Column({ nullable: true })
   workerId: number;
 }
 export type IPublicTask = Omit<Task, 'worker' | 'template' | 'creator'>;
