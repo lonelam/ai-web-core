@@ -28,8 +28,8 @@ export class User {
   @Column()
   userName: string;
 
-  @Index('IDX_PHONE')
-  @Column({ unique: true, nullable: true })
+  @Index('IDX_PHONE', { unique: true })
+  @Column({ nullable: true })
   phone: string;
 
   @Column()
