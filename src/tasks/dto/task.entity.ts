@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'src/user/dto/user.entity';
 import {
   Column,
@@ -21,12 +22,15 @@ export enum TaskStatus {
 
 @Entity()
 export class Task {
+  @ApiProperty()
   @PrimaryGeneratedColumn({ primaryKeyConstraintName: 'pk_id' })
   id: number;
 
+  @ApiProperty()
   @Column()
   name: string;
 
+  @ApiProperty()
   @Column({
     type: 'enum',
     enum: TaskStatus,
@@ -34,11 +38,13 @@ export class Task {
   })
   status: TaskStatus;
 
+  @ApiProperty()
   @Column({
     type: 'text',
   })
   data: string;
 
+  @ApiProperty()
   @Column({
     type: 'text',
     nullable: true,
@@ -46,6 +52,7 @@ export class Task {
   })
   resultData: string;
 
+  @ApiProperty()
   @Column({
     type: 'text',
     nullable: true,
@@ -68,6 +75,7 @@ export class Task {
   })
   template: TaskTemplate;
 
+  @ApiProperty()
   @Column()
   templateId: number;
 

@@ -16,6 +16,7 @@ import {
   takeUntil,
   timer,
 } from 'rxjs';
+import { RejectTaskParams } from './dto/rejectTask.validation';
 type ITaskRequestItem = {
   taskSubject: Subject<Task>;
   retrieveSubject: Subject<void>;
@@ -169,6 +170,11 @@ export class TasksService {
     await this.taskRepository.save(task);
   }
 
+  async updateTask(task: Task): Promise<Task> {
+    const savedTask = await this.taskRepository.save(task);
+    return savedTask;
+  }
+
   async getTasksByStatus({ status }: { status: TaskStatus }): Promise<Task[]> {
     return this.taskRepository.findBy({
       status: status,
@@ -274,7 +280,8 @@ export class TasksService {
     return resultTask;
   }
 
-  async rejectTask({ id }: { id: number }) {
+  async rejectTask(params: RejectTaskParams) {
+    const { id } = params;
     const task = await this.getTaskById(id);
     if (!task) {
       throw new BadRequestException(

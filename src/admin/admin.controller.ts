@@ -11,6 +11,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
+import { Task } from 'src/tasks/dto/task.entity';
 import { TaskTemplate } from 'src/tasks/dto/taskTemplate.entity';
 import {
   ICreateTemplate,
@@ -49,6 +50,12 @@ export class AdminController {
   @Get('tasks')
   async getAllTasks() {
     return this.tasksService.getAllTasks();
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('task/update')
+  async updateTasks(@Body() task: Task) {
+    return this.tasksService.updateTask(task);
   }
 
   @HttpCode(HttpStatus.OK)

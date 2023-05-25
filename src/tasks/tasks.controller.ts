@@ -93,4 +93,18 @@ export class TasksController {
     }
     return await this.tasksService.resolveTask(body);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reject')
+  async rejectTask(
+    @Request() request: AuthorizedRequest,
+    @Body() body: ResolveTaskParams,
+  ) {
+    if (request.user.role !== UserRole.TASK_SLAVE) {
+      throw new UnauthorizedException(
+        'task can only be resolved by task slave users',
+      );
+    }
+    return await this.tasksService.rejectTask(body);
+  }
 }
