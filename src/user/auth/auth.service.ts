@@ -90,6 +90,7 @@ export class AuthService {
     }
 
     const existUserByEmail = await this.getOneByEmail({ email });
+
     if (existUserByEmail) {
       throw new BadRequestException('the email is already registered');
     }
@@ -118,11 +119,13 @@ export class AuthService {
     this.authorityRepository.save(authForStableDiffusion);
     return savedUser;
   }
+
   async getOneById({ id }: { id: number }) {
     return this.userRepository.findOneBy({
       id,
     });
   }
+
   async getOneByUserName({ userName }: { userName: string }) {
     return this.userRepository.findOneBy({
       userName,
