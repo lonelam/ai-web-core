@@ -18,6 +18,7 @@ import { ResolveTaskParams } from './dto/resolveTask.validation';
 import { Task } from './dto/task.entity';
 import { TasksService } from './tasks.service';
 import { TemplateService } from './template/template.service';
+import { BatchFetchTaskParams } from './dto/batchFetchTask.validation';
 
 @Controller('task')
 export class TasksController {
@@ -36,6 +37,21 @@ export class TasksController {
   @Get('get_tasks')
   getAllTasks(@Request() request: AuthorizedRequest) {
     return this.tasksService.getAllTasksByNormalUser(request.user_id);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('batch_fetch')
+  async batchFetchTask(
+    @Request() request: AuthorizedRequest,
+    @Body() body: BatchFetchTaskParams,
+  ) {
+    const tasks = await this.tasksService.batchFetchTasksByTaskIds(
+      body.taskIds,
+      request.user_id,
+    );
+    return {
+      tasks,
+    };
   }
 
   @HttpCode(HttpStatus.OK)

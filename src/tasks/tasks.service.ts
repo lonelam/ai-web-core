@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { AddTaskParams } from './dto/addTask.validation';
 import { Task, TaskStatus } from './dto/task.entity';
 import { TaskTemplate } from './dto/taskTemplate.entity';
@@ -83,6 +83,34 @@ export class TasksService {
       },
     );
     return allNormalUserTasks;
+  }
+
+  async batchFetchTasksByTaskIds(
+    taskIds: number[],
+    userId: number,
+  ): Promise<Task[]> {
+    const fetchedTasks = await this.dataSource.transaction(
+      async (transactionalEntityManager) => {
+        const visibleTasks = await transactionalEntityManager.findBy(Task, {
+          creator: {
+            id: userId,
+          },
+          id: In(taskIds),
+        });
+        for (const task of visibleTasks) {
+          if (
+            [TaskStatus.PENDING, TaskStatus.RUNNING].includes(task.status) &&
+            Date.now() - task.updateTime.valueOf() > 60 * 1000
+          ) {
+            task.status = TaskStatus.QUEUEING;
+          }
+          await transactionalEntityManager.save(task);
+        }
+        return visibleTasks;
+      },
+    );
+
+    return fetchedTasks;
   }
 
   async getTaskByNormalUser(
